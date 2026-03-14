@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { MessageModel } from '../models';
-import { OnlineStatusService, MessageService } from '../services';
-import { AuthRequest } from '../middleware/auth';
-import { asyncHandler, AppError } from '../middleware/error';
-import { ValidationUtil } from '../utils/auth';
-import logger from '../config/logger';
-import pool from '../config/database';
+import { MessageModel } from '../models/index.js';
+import { OnlineStatusService, MessageService } from '../services/index.js';
+import { AuthRequest } from '../middleware/auth.js';
+import { asyncHandler, AppError } from '../middleware/error.js';
+import { ValidationUtil } from '../utils/auth.js';
+import logger from '../config/logger.js';
+import pool from '../config/database.js';
 
 export const getConversation = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { userId: otherUserId } = req.params;

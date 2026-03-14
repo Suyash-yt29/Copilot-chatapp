@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/MessageInput.css';
 
+
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
+  onSendMedia?: (file: File) => void;
   onTyping: () => void;
   onStopTyping: () => void;
 }
 
 export const MessageInput: React.FC<MessageInputProps> = ({
   onSendMessage,
+  onSendMedia,
   onTyping,
   onStopTyping,
 }) => {
@@ -46,6 +49,16 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     };
   }, []);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onSendMedia) {
+      onSendMedia(file);
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="message-input-container">
       <textarea
@@ -58,6 +71,21 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       <button onClick={handleSend} disabled={!message.trim()}>
         Send
       </button>
+      <button
+        type="button"
+        className="media-upload-btn"
+        onClick={() => fileInputRef.current?.click()}
+        title="Attach file or image"
+      >
+        📎
+      </button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        onChange={handleFileChange}
+      />
     </div>
   );
 };

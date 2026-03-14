@@ -1,7 +1,7 @@
 import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { jwtConfig } from '../config/jwt';
-import logger from '../config/logger';
+import { jwtConfig } from '../config/jwt.js';
+import logger from '../config/logger.js';
 
 export interface JwtPayload {
   userId: string;

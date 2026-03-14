@@ -1,6 +1,6 @@
-import pool from '../config/database';
-import redis from '../config/redis';
-import logger from '../config/logger';
+import pool from '../config/database.js';
+import redis from '../config/redis.js';
+import logger from '../config/logger.js';
 
 export class OnlineStatusService {
   static async addOnlineUser(userId: string, socketId: string): Promise<void> {

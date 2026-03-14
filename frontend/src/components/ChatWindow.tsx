@@ -4,6 +4,7 @@ import { useEncryption } from '../hooks/useEncryption';
 import { useAuthStore } from '../context/authStore';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
+import { apiService } from '../services/api';
 import '../styles/ChatWindow.css';
 
 interface Message {
@@ -12,13 +13,15 @@ interface Message {
   encrypted_message: string;
   status: 'sent' | 'delivered' | 'seen';
   created_at: string;
+  media_url?: string;
 }
 
 interface ChatWindowProps {
   userId: string;
+  guestMode?: boolean;
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ userId }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ userId, guestMode }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
@@ -30,6 +33,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ userId }) => {
 
   // Load conversation history
   useEffect(() => {
+    if (guestMode) {
+      setMessages([]); // Guests see no messages or only public if available
+      return;
+    }
     const loadConversation = async () => {
       try {
         setLoading(true);
@@ -53,7 +60,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ userId }) => {
     if (userId && accessToken) {
       loadConversation();
     }
-  }, [userId, accessToken]);
+  }, [userId, accessToken, guestMode]);
 
   useEffect(() => {
     if (!socket) return;
@@ -120,15 +127,37 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ userId }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+
   const handleSendMessage = async (text: string) => {
     if (!socket) return;
-
     const { encrypted, iv } = await encryptMessage(text, userId);
     socket.emit('send_message', {
       receiver_id: userId,
       encrypted_message: encrypted,
       iv,
     });
+  };
+
+  const handleSendMedia = async (file: File) => {
+    if (!socket || !file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await apiService.post('/media/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const mediaUrl = response.data.url;
+      // Send as empty encrypted message with media_url
+      const { encrypted, iv } = await encryptMessage('', userId);
+      socket.emit('send_message', {
+        receiver_id: userId,
+        encrypted_message: encrypted,
+        iv,
+        media_url: mediaUrl,
+      });
+    } catch (error) {
+      alert('Failed to upload media');
+    }
   };
 
   const handleTyping = () => {
@@ -151,11 +180,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ userId }) => {
       </div>
       <MessageList messages={messages} ref={messagesEndRef} />
       {isTyping && <div className="typing-indicator">User is typing...</div>}
-      <MessageInput
-        onSendMessage={handleSendMessage}
-        onTyping={handleTyping}
-        onStopTyping={handleStopTyping}
-      />
+      {guestMode ? (
+        <div style={{ textAlign: 'center', color: '#888', margin: '16px 0' }}>
+          Guest users cannot send messages.
+        </div>
+      ) : (
+        <MessageInput
+          onSendMessage={handleSendMessage}
+          onSendMedia={handleSendMedia}
+          onTyping={handleTyping}
+          onStopTyping={handleStopTyping}
+        />
+      )}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../context/authStore';
 import { ChatWindow } from '../components/ChatWindow';
@@ -13,13 +14,23 @@ interface Conversation {
   unread_count: number;
 }
 
-export const ChatDashboard: React.FC = () => {
+interface ChatDashboardProps {
+  guestMode?: boolean;
+  onLogout?: () => void;
+}
+
+export const ChatDashboard: React.FC<ChatDashboardProps> = ({ guestMode, onLogout }) => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
   const { user, logout } = useAuthStore();
 
   useEffect(() => {
+    if (guestMode) {
+      // Optionally fetch public conversations for guests
+      setConversations([]); // Or fetch public data if available
+      return;
+    }
     const fetchConversations = async () => {
       try {
         setLoading(true);
@@ -31,9 +42,8 @@ export const ChatDashboard: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchConversations();
-  }, []);
+  }, [guestMode]);
 
   const conversationData = conversations.map(conv => ({
     id: conv.user_id,
@@ -48,8 +58,12 @@ export const ChatDashboard: React.FC = () => {
       <header className="chat-header">
         <h1>Chat</h1>
         <div className="header-actions">
-          <span className="user-info">{user?.email}</span>
-          <button onClick={logout} className="logout-btn">Logout</button>
+          <span className="user-info">{guestMode ? 'Guest' : user?.email}</span>
+          {guestMode ? (
+            <button onClick={onLogout} className="logout-btn">Logout</button>
+          ) : (
+            <button onClick={logout} className="logout-btn">Logout</button>
+          )}
         </div>
       </header>
 
@@ -68,14 +82,21 @@ export const ChatDashboard: React.FC = () => {
 
         <main className="chat-main">
           {selectedUserId ? (
-            <ChatWindow userId={selectedUserId} />
+            <ChatWindow userId={selectedUserId} guestMode={guestMode} />
           ) : (
             <div className="no-conversation">
-              <p>Select a conversation to start chatting</p>
+              <p>{guestMode ? 'Browse public areas as a guest.' : 'Select a conversation to start chatting'}</p>
             </div>
           )}
         </main>
       </div>
+      {guestMode && (
+        <div className="guest-restrictions">
+          <p style={{ color: '#dc3545', textAlign: 'center', marginTop: 16 }}>
+            Guest users cannot send messages, add friends, or increase trust score.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ interface Message {
   encrypted_message: string;
   status: 'sent' | 'delivered' | 'seen';
   created_at: string;
+  media_url?: string;
 }
 
 interface MessageListProps {
@@ -23,7 +24,15 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
             className={`message-item ${message.status}`}
           >
             <div className="message-content">
-              {message.encrypted_message}
+              {message.media_url ? (
+                message.media_url.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                  <img src={message.media_url} alt="media" style={{ maxWidth: 200, maxHeight: 200, borderRadius: 8 }} />
+                ) : (
+                  <a href={message.media_url} target="_blank" rel="noopener noreferrer">Download file</a>
+                )
+              ) : (
+                message.encrypted_message
+              )}
             </div>
             <div className="message-meta">
               <span className="timestamp">

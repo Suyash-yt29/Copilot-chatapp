@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
-import logger from '../config/logger';
+import logger from '../config/logger.js';
 
 export const handleValidationErrors = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
@@ -12,6 +12,10 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
 };
 
 export const validateRegister = [
+  body('username')
+    .isString()
+    .isLength({ min: 3 })
+    .withMessage('Username is required and must be at least 3 characters'),
   body('email')
     .isEmail()
     .normalizeEmail()
@@ -23,6 +27,14 @@ export const validateRegister = [
     .isString()
     .notEmpty()
     .withMessage('Public key is required'),
+  body('country')
+    .isString()
+    .notEmpty()
+    .withMessage('Country/Region is required'),
+  body('language')
+    .isString()
+    .notEmpty()
+    .withMessage('Language preference is required'),
 ];
 
 export const validateLogin = [

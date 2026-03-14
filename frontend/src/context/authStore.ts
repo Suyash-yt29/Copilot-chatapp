@@ -7,17 +7,20 @@ interface User {
   public_key: string;
 }
 
+
 interface AuthStore {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
   isLoading: boolean;
   error: string | null;
-  register: (email: string, password: string, publicKey: string) => Promise<void>;
+  register: (username: string, email: string, password: string, publicKey: string, country: string, language: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   setTokens: (access: string, refresh: string) => void;
+  guestLogin?: () => void;
 }
+
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
@@ -26,13 +29,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isLoading: false,
   error: null,
 
-  register: async (email: string, password: string, publicKey: string) => {
+  register: async (username: string, email: string, password: string, publicKey: string, country: string, language: string) => {
     try {
       set({ isLoading: true });
       const response = await apiService.post('/auth/register', {
+        username,
         email,
         password,
         public_key: publicKey,
+        country,
+        language,
       });
 
       localStorage.setItem('accessToken', response.data.accessToken);

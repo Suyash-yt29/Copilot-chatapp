@@ -4,15 +4,21 @@ import { Server } from 'socket.io';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
-import redis from './config/redis';
-import pool from './config/database';
-import logger from './config/logger';
-import { setupSocketIO } from './sockets/handlers';
-import { errorHandler } from './middleware/error';
-import { generalLimiter } from './middleware/rateLimiter';
-import authRoutes from './routes/auth';
-import messageRoutes from './routes/messages';
+import redis from './config/redis.js';
+import pool from './config/database.js';
+import logger from './config/logger.js';
+import { setupSocketIO } from './sockets/handlers.js';
+import { errorHandler } from './middleware/error.js';
+import { generalLimiter } from './middleware/rateLimiter.js';
+import authRoutes from './routes/auth.js';
+import messageRoutes from './routes/messages.js';
+import userRoutes from './routes/user.js';
+import friendRoutes from './routes/friend.js';
+import groupRoutes from './routes/group.js';
+import msgRoutes from './routes/message.js';
 import dotenv from 'dotenv';
+import mediaRoutes from './routes/media.js';
+import statusRoutes from './routes/status.js';
 
 dotenv.config();
 
@@ -34,7 +40,13 @@ app.use(generalLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/messages', messageRoutes);
+app.use('/api/messages', messageRoutes); // legacy
+app.use('/api/users', userRoutes);
+app.use('/api/friends', friendRoutes);
+app.use('/api/groups', groupRoutes);
+
+app.use('/api/media', mediaRoutes);
+app.use('/api/status', statusRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

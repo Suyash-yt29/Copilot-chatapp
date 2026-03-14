@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { useAuthStore } from '../context/authStore';
-import { generateKeyPair } from '../utils/encryption';
-import '../styles/Auth.css';
 
-export const RegisterPage: React.FC = () => {
+interface RegisterPageProps {
+  onRegister?: () => void;
+}
+
+export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegister }) => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [country, setCountry] = useState('');
+  const [language, setLanguage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -16,13 +19,24 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     setError('');
 
+    if (!username.trim()) {
+      setError('Username is required');
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     if (password.length < 8) {
       setError('Password must be at least 8 characters');
+      return;
+    }
+    if (!country.trim()) {
+      setError('Country/Region is required');
+      return;
+    }
+    if (!language.trim()) {
+      setError('Language preference is required');
       return;
     }
 
@@ -30,7 +44,8 @@ export const RegisterPage: React.FC = () => {
 
     try {
       const { publicKey } = await generateKeyPair();
-      await register(email, password, publicKey);
+      await register(username, email, password, publicKey, country, language);
+      if (onRegister) onRegister();
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -43,6 +58,16 @@ export const RegisterPage: React.FC = () => {
       <div className="auth-card">
         <h1>Create Account</h1>
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
           <div className="form-group">
             <label>Email</label>
             <input
@@ -69,6 +94,26 @@ export const RegisterPage: React.FC = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="form-group">
+            <label>Country / Region</label>
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="form-group">
+            <label>Language Preference</label>
+            <input
+              type="text"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
               required
               disabled={loading}
             />

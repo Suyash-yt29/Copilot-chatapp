@@ -1,8 +1,8 @@
 import { Server, Socket } from 'socket.io';
-import { AuthUtil } from '../utils/auth';
-import { OnlineStatusService, MessageService } from '../services';
-import { MessageModel } from '../models';
-import logger from '../config/logger';
+import { AuthUtil } from '../utils/auth.js';
+import { OnlineStatusService, MessageService } from '../services/index.js';
+import { MessageModel } from '../models/index.js';
+import logger from '../config/logger.js';
 
 export interface AuthenticatedSocket extends Socket {
   userId?: string;

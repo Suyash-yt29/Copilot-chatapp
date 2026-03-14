@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthUtil } from '../utils/auth';
-import logger from '../config/logger';
+import { AuthUtil } from '../utils/auth.js';
+import logger from '../config/logger.js';
 
 export interface AuthRequest extends Request {
   userId?: string;
