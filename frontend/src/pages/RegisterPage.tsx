@@ -1,4 +1,9 @@
 
+import React, { useState } from 'react';
+import { useAuthStore } from '../context/authStore';
+import { generateKeyPair } from '../utils/encryption';
+import '../styles/Auth.css';
+
 interface RegisterPageProps {
   onRegister?: () => void;
 }

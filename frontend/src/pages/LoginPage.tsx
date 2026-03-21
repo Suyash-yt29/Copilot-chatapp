@@ -16,9 +16,15 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
+      console.log('🔐 Attempting login for:', email);
       await login(email, password);
+      console.log('✅ Login successful!');
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      console.error('❌ Login error:', err);
+      console.error('Response data:', err.response?.data);
+      console.error('Status:', err.response?.status);
+      const errorMsg = err.response?.data?.error || err.message || 'Login failed';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

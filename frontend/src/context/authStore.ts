@@ -31,6 +31,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   register: async (username: string, email: string, password: string, publicKey: string, country: string, language: string) => {
     try {
+      console.log('[ AuthStore] 📝 Register API call to /auth/register', { email, username });
       set({ isLoading: true });
       const response = await apiService.post('/auth/register', {
         username,
@@ -41,6 +42,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         language,
       });
 
+      console.log('[AuthStore] ✅ Register success, storing tokens');
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('privateKey', localStorage.getItem('privateKey') || '');
@@ -52,6 +54,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
         isLoading: false,
       });
     } catch (error: any) {
+      console.error('[AuthStore] ❌ Register error:', error.message);
+      console.error('[AuthStore] Error response:', error.response?.data);
+      console.error('[AuthStore] Error status:', error.response?.status);
       set({
         error: error.response?.data?.error || 'Registration failed',
         isLoading: false,
@@ -62,12 +67,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   login: async (email: string, password: string) => {
     try {
+      console.log('[AuthStore] 🔐 Login API call to /auth/login', { email });
       set({ isLoading: true });
       const response = await apiService.post('/auth/login', {
         email,
         password,
       });
-
+      console.log('[AuthStore] ✅ Login success, storing tokens');
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
 
@@ -78,6 +84,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
         isLoading: false,
       });
     } catch (error: any) {
+      console.error('[AuthStore] ❌ Login error:', error.message);
+      console.error('[AuthStore] Error response:', error.response?.data);
+      console.error('[AuthStore] Error status:', error.response?.status);
+      console.error('[AuthStore] Full error object:', error);
       set({
         error: error.response?.data?.error || 'Login failed',
         isLoading: false,

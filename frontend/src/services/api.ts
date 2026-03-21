@@ -4,7 +4,7 @@ import { useAuthStore } from '../context/authStore';
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const apiService = axios.create({
-  baseURL: `${apiUrl}/api`,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,6 +16,7 @@ apiService.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('[API Request] 📤', config.method?.toUpperCase(), config.url);
     return config;
   },
   (error) => {
@@ -24,8 +25,14 @@ apiService.interceptors.request.use(
 );
 
 apiService.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('[API Response] 📥', response.status, response.config.url);
+    return response;
+  },
   async (error) => {
+    console.error('[API Error] ❌', error.response?.status, error.response?.statusText);
+    console.error('[API Error] URL:', error.config?.url);
+    console.error('[API Error] Data:', error.response?.data);
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -34,7 +41,7 @@ apiService.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         const response = await axios.post(
-          `${apiUrl}/api/auth/refresh`,
+          '/api/auth/refresh',
           { refreshToken }
         );
 
