@@ -35,4 +35,8 @@ router.post(
 
 router.get('/public-key/:userId', authController.getPublicKey);
 
+// Google OAuth routes
+router.get('/google', authController.googleAuth);
+router.get('/google/callback', authController.googleAuthCallback);
+
 export default router;

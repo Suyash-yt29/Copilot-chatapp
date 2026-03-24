@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
+import passport from './config/passport.js';
 import redis from './config/redis.js';
 import pool from './config/database.js';
 import logger from './config/logger.js';
@@ -37,6 +38,9 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(morgan('combined', { stream: { write: (msg) => logger.http(msg) } }));
 app.use(generalLimiter);
+
+// Passport middleware
+app.use(passport.initialize());
 
 // Routes
 app.use('/api/auth', authRoutes);

@@ -45,10 +45,11 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  password_hash: string;
+  password_hash: string | null;
   public_key: string;
   country: string;
   language: string;
+  phone_number: string | null;
   trust_score: number;
   created_at: string;
 }
@@ -95,12 +96,12 @@ export interface Message {
 
 
 export class UserModel {
-  static async create(username: string, email: string, passwordHash: string, publicKey: string, country: string, language: string): Promise<User> {
+  static async create(username: string, email: string, passwordHash: string | null, publicKey: string, country: string, language: string, phoneNumber: string | null): Promise<User> {
     const result = await pool.query(
-      `INSERT INTO users (username, email, password_hash, public_key, country, language) 
-       VALUES ($1, $2, $3, $4, $5, $6) 
+      `INSERT INTO users (username, email, password_hash, public_key, country, language, phone_number) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING *`,
-      [username, email, passwordHash, publicKey, country, language]
+      [username, email, passwordHash, publicKey, country, language, phoneNumber]
     );
     return result.rows[0];
   }

@@ -15,10 +15,11 @@ export const runMigrations = async () => {
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         username VARCHAR(64) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
+        password_hash VARCHAR(255),
         public_key TEXT NOT NULL,
         country VARCHAR(128),
         language VARCHAR(64),
+        phone_number VARCHAR(20),
         trust_score INTEGER DEFAULT 1000,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
